@@ -223,7 +223,7 @@ def synthesize_forecast(topic, signals, sources_hit):
 
 # ── Step 7: Format output ───────────────────────────────────
 
-def format_markdown(forecast, topic):
+def format_markdown(forecast, topic, signals=None, sources_hit=None):
     """Format forecast as readable markdown."""
     direction_emoji = {
         "bullish": "🟢",
@@ -268,6 +268,22 @@ def format_markdown(forecast, topic):
         lines.append("")
         for gap in gaps:
             lines.append(f"- ⚠️ {gap}")
+        lines.append("")
+
+    if signals is not None:
+        def status(key):
+            return "✅" if signals.get(key) else "❌"
+
+        hit = sources_hit if sources_hit is not None else sum(
+            1 for k in ("prediction_markets", "twitter", "news", "stocks")
+            if signals.get(k)
+        )
+        lines.append(f"## Data Sources ({hit}/4)")
+        lines.append("")
+        lines.append(f"- 📊 Prediction Markets: {status('prediction_markets')}")
+        lines.append(f"- 🐦 Twitter/X Sentiment: {status('twitter')}")
+        lines.append(f"- 📰 News (Tavily): {status('news')}")
+        lines.append(f"- 💹 Market Data: {status('stocks')}")
         lines.append("")
 
     lines.append("---")
@@ -340,7 +356,7 @@ def main():
     if args.output == "json":
         output = json.dumps(forecast, indent=2)
     else:
-        output = format_markdown(forecast, args.query)
+        output = format_markdown(forecast, args.query, signals, sources_hit)
 
     print(output)
 
