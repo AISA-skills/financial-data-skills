@@ -1,4 +1,4 @@
-# 📈 Trend Forecaster
+# 📈 Trend Forecast
 
 Multi-signal trend analysis for autonomous agents. Powered by [AIsa](https://aisa.one).
 
