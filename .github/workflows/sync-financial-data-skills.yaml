@@ -23,7 +23,7 @@ jobs:
 
       - name: Clone trend-forecast
         env:
-          TOKEN: ${{ secrets.SyncAIsaSkills  }}
+          TOKEN: ${{ secrets.SYNC_AISAS_KILLS_TOKEN  }}
         run: |
           git clone https://x-access-token:${TOKEN}@github.com/AIsa-team/agent-skills.git target-repo
 
@@ -40,7 +40,7 @@ jobs:
 
       - name: Commit and push to Financial And Data Repo
         env:
-          TOKEN: ${{ secrets.SyncAIsaSkills  }}
+          TOKEN: ${{ secrets.SYNC_AISAS_KILLS_TOKEN  }}
         run: |
           cd target-repo
 
