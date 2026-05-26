@@ -70,6 +70,7 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "Sync Financial And Data folder"
-            git remote set-url origin https://github.com/AISA-skills/financial-data-skills.git
+#            git remote set-url origin https://github.com/AISA-skills/financial-data-skills.git
+            git remote set-url origin "https://x-access-token:${TOKEN}@github.com/AISA-skills/financial-data-skills.git"
             git push origin main --force
           fi
