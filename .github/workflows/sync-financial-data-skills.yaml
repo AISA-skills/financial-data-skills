@@ -93,7 +93,7 @@ jobs:
           TOKEN: ${{ secrets.SYNC_AISAS_KILLS_TOKEN  }}
         run: |
           cd target-repo
-          ls -l
+          ls -la
 
           git status
           git add -A marketpulse
