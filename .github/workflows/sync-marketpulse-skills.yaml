@@ -26,6 +26,18 @@ jobs:
         run: |
           git subtree split --prefix=marketpulse -b split-marketpulse       
           ls -la
+          
+          find . -mindepth 1 -maxdepth 1 \
+            ! -name "marketpulse" \
+            ! -name ".git" \
+            ! -name ".gitignore" \
+            ! -name "LICENSE" \
+            ! -name "README.md" \
+            ! -name "SKILL_AUTHORING.md" \
+            ! -name "SKILL_DEDUP_ANALYSIS.md" \
+            -exec rm -rf {} +
+          
+          ls -a
 
 #      - name: Clone marketpulse
 #        env:
