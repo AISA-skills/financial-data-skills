@@ -39,6 +39,8 @@ jobs:
           find trend-forecast -type f
 
       - name: Commit and push to Financial And Data Repo
+        env:
+          TOKEN: ${{ secrets.SyncAIsaSkills  }}
         run: |
           cd target-repo
 
@@ -50,5 +52,5 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "Sync trend-forecast folder"
-            git push origin HEAD:main
+            git push https://x-access-token:${TOKEN}@github.com/AISA-skills/financial-data-skills.git HEAD:main
           fi
