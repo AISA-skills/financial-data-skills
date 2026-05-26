@@ -1,0 +1,63 @@
+name: Sync Financial And Data Skills
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+
+  sync-marketpulse:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout  repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@aisa.one"
+
+      - name: Split marketpulse subtree
+        run: |
+          git subtree split --prefix=marketpulse -b split-marketpulse       
+
+      - name: Clone marketpulse
+        env:
+          TOKEN: ${{ secrets.SYNC_AISAS_KILLS_TOKEN  }}
+        run: |
+          git clone https://x-access-token:${TOKEN}@github.com/AIsa-team/agent-skills.git target-repo
+
+      - name: Sync marketpulse into Financial And Data Repo
+        run: |
+          rm -rf target-repo/marketpulse
+          mkdir -p target-repo/marketpulse
+
+          cp -a marketpulse/. target-repo/marketpulse/
+
+          echo "Target marketpulse:"
+          ls -la target-repo/marketpulse
+          find marketpulse -type f
+
+      - name: Commit and push to Financial And Data Repo
+        env:
+          TOKEN: ${{ secrets.SYNC_AISAS_KILLS_TOKEN  }}
+        run: |
+          cd target-repo
+          ls -la
+
+          git status
+          git add -A marketpulse
+          git status
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Sync marketpulse folder"
+            git remote set-url origin https://github.com/AISA-skills/financial-data-skills.git
+            git push origin main
+          fi
