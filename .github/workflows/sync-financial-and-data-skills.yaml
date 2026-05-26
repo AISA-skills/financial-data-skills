@@ -39,23 +39,6 @@ jobs:
           
           ls -a
 
-#      - name: Clone marketpulse
-#        env:
-#          TOKEN: ${{ secrets.SYNC_AISAS_KILLS_TOKEN  }}
-#        run: |
-#          git clone https://x-access-token:${TOKEN}@github.com/AIsa-team/agent-skills.git target-repo
-#
-#      - name: Sync marketpulse into Financial And Data Repo
-#        run: |
-#          rm -rf target-repo/marketpulse
-#          mkdir -p target-repo/marketpulse
-#
-#          cp -a marketpulse/. target-repo/marketpulse/
-#
-#          echo "Target marketpulse:"
-#          ls -la target-repo/marketpulse
-#          find marketpulse -type f
-#
       - name: Commit and push to Financial And Data Repo
         env:
           TOKEN: ${{ secrets.SYNC_AISAS_KILLS_TOKEN  }}
@@ -70,7 +53,6 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "Sync Financial And Data folder"
-#            git remote set-url origin https://github.com/AISA-skills/financial-data-skills.git
             git remote set-url origin "https://x-access-token:${TOKEN}@github.com/AISA-skills/financial-data-skills.git"
             git push origin main --force
           fi
