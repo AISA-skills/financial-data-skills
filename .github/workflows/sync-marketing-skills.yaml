@@ -28,6 +28,7 @@ jobs:
           
           find . -mindepth 1 -maxdepth 1 \
             ! -name "seo-keyword-research" \
+            ! -name "awesome-seo-skills" \
 
             ! -name ".git" \
             ! -name ".gitignore" \
