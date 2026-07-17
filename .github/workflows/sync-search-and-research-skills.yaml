@@ -23,34 +23,7 @@ jobs:
           git config --global user.email "github-actions@aisa.one"
 
       - name: Split Search And Research folder
-        run: |
-          ls -la
-          
-          find . -mindepth 1 -maxdepth 1 \
-            ! -name "multi-source-search" \
-            ! -name "perplexity-search" \
-            ! -name "youtube-serp" \
-            ! -name "last30days" \
-            ! -name "aisa-tavily" \
-            ! -name "aisa-youtube-search" \
-            ! -name "last30days-zh" \
-            ! -name "multi-search" \
-            ! -name "perplexity-research" \
-            ! -name "scholar-search" \
-            ! -name "smart-search" \
-            ! -name "tavily-extract" \
-            ! -name "tavily-search" \
-            ! -name "web-search" \
-            ! -name "youtube-search" \
-            ! -name ".git" \
-            ! -name ".gitignore" \
-            ! -name "LICENSE" \
-            ! -name "README.md" \
-            ! -name "SKILL_AUTHORING.md" \
-            ! -name "SKILL_DEDUP_ANALYSIS.md" \
-            -exec rm -rf {} +
-          
-          ls -a
+        run: bash .github/scripts/prepare-category-repo.sh search-research
 
       - name: Commit and push to Search And Research Repo
         env:

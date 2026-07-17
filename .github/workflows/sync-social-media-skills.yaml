@@ -23,25 +23,7 @@ jobs:
           git config --global user.email "github-actions@aisa.one"
 
       - name: Split Social Media folder
-        run: |
-          ls -la
-          
-          find . -mindepth 1 -maxdepth 1 \
-            ! -name "twitter-autopilot" \
-            ! -name "aisa-twitter-api" \
-            ! -name "aisa-twitter-command-center" \
-            ! -name "aisa-twitter-post-engage" \
-            ! -name "twitter-command-center-search-post" \
-            ! -name "x-intelligence-automation" \
-            ! -name ".git" \
-            ! -name ".gitignore" \
-            ! -name "LICENSE" \
-            ! -name "README.md" \
-            ! -name "SKILL_AUTHORING.md" \
-            ! -name "SKILL_DEDUP_ANALYSIS.md" \
-            -exec rm -rf {} +
-          
-          ls -a
+        run: bash .github/scripts/prepare-category-repo.sh social-media
 
       - name: Commit and push to Social Media Repo
         env:

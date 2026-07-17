@@ -23,23 +23,7 @@ jobs:
           git config --global user.email "github-actions@aisa.one"
 
       - name: Split AI Model Gateway folder
-        run: |
-          ls -la
-          
-          find . -mindepth 1 -maxdepth 1 \
-            ! -name "aisa-provider" \
-            ! -name "cn-llm" \
-            ! -name "llm-router" \
-
-            ! -name ".git" \
-            ! -name ".gitignore" \
-            ! -name "LICENSE" \
-            ! -name "README.md" \
-            ! -name "SKILL_AUTHORING.md" \
-            ! -name "SKILL_DEDUP_ANALYSIS.md" \
-            -exec rm -rf {} +
-          
-          ls -a
+        run: bash .github/scripts/prepare-category-repo.sh ai-models
 
       - name: Commit and push to AI Model Gateway Repo
         env:
