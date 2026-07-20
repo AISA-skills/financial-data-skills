@@ -6,7 +6,9 @@ with a few house-level requirements on top.
 
 ## TL;DR
 
-1. Skill lives in `<skill-name>/` at the repo root.
+1. Skill lives in `<category>/<skill-name>/`, where `<category>` is one of
+   `financial`, `search-research`, `social-media`, `ai-models`, `marketing`,
+   or `creative`.
 2. `SKILL.md` frontmatter must be **spec-compliant** (validate with
    [`skills-ref`](https://github.com/agentskills/agentskills/tree/main/skills-ref)
    before merging).
@@ -20,14 +22,20 @@ with a few house-level requirements on top.
 ## Directory layout
 
 ```
-<skill-name>/
-├── SKILL.md          # required — metadata + agent-facing instructions
-├── README.md         # required in this repo — human-facing overview
-├── scripts/          # optional — runnable code
-├── references/       # optional — long-form docs the agent loads on demand
-├── assets/           # optional — static resources (templates, data, images)
-└── ...
+<category>/
+├── README.md         # category index
+├── LICENSE           # category-local copy for skill-relative license links
+└── <skill-name>/
+    ├── SKILL.md      # required — metadata + agent-facing instructions
+    ├── README.md     # required in this repo — human-facing overview
+    ├── scripts/      # optional — runnable code
+    ├── references/   # optional — long-form docs the agent loads on demand
+    ├── assets/       # optional — static resources (templates, data, images)
+    └── ...
 ```
+
+Use the narrowest matching business category. Adding a new top-level category
+requires updating the root README and the corresponding sync workflow.
 
 Directory name rules (enforced by the spec):
 
@@ -168,7 +176,7 @@ See the [full AIsa API Reference](https://aisa.one/docs/api-reference) for the c
 
 ## License
 
-MIT — see [LICENSE](../LICENSE) at the repo root.
+MIT — see [LICENSE](../LICENSE) at the category root.
 ```
 
 Keep `SKILL.md` under 500 lines. Move long reference material into

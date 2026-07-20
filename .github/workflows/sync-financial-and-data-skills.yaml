@@ -23,34 +23,7 @@ jobs:
           git config --global user.email "github-actions@aisa.one"
 
       - name: Split Financial And Data folder
-        run: |
-          ls -la
-          
-          find . -mindepth 1 -maxdepth 1 \
-            ! -name "marketpulse" \
-            ! -name "trend-forecast" \
-            ! -name "crypto-market-data" \
-            ! -name "prediction-market-data" \
-            ! -name "prediction-market-arbitrage" \
-            ! -name "market" \
-            ! -name "prediction-market-arbitrage-zh" \
-            ! -name "prediction-market-data-zh" \
-            ! -name "stock-analysis" \
-            ! -name "stock-dividend" \
-            ! -name "stock-hot" \
-            ! -name "stock-portfolio" \
-            ! -name "stock-rumors" \
-            ! -name "stock-watchlist" \
-            ! -name "us-stock-analyst" \
-            ! -name ".git" \
-            ! -name ".gitignore" \
-            ! -name "LICENSE" \
-            ! -name "README.md" \
-            ! -name "SKILL_AUTHORING.md" \
-            ! -name "SKILL_DEDUP_ANALYSIS.md" \
-            -exec rm -rf {} +
-          
-          ls -a
+        run: bash .github/scripts/prepare-category-repo.sh financial
 
       - name: Commit and push to Financial And Data Repo
         env:

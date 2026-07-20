@@ -23,21 +23,7 @@ jobs:
           git config --global user.email "github-actions@aisa.one"
 
       - name: Split Creative AI folder
-        run: |
-          ls -la
-          
-          find . -mindepth 1 -maxdepth 1 \
-            ! -name "media-gen" \
-
-            ! -name ".git" \
-            ! -name ".gitignore" \
-            ! -name "LICENSE" \
-            ! -name "README.md" \
-            ! -name "SKILL_AUTHORING.md" \
-            ! -name "SKILL_DEDUP_ANALYSIS.md" \
-            -exec rm -rf {} +
-          
-          ls -a
+        run: bash .github/scripts/prepare-category-repo.sh creative
 
       - name: Commit and push to Creative AI Repo
         env:

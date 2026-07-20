@@ -6,17 +6,15 @@ with code in this repository.
 ## What this repo is
 
 A catalog of **agent skills** for the AIsa platform (https://aisa.one).
-Each top-level directory is one self-contained skill:
+Top-level directories are business categories, and every immediate child is a
+self-contained skill:
 
-- `last30days/` — 30-day multi-source research brief
-- `marketpulse/` — equity market data
-- `media-gen/` — image + video generation
-- `multi-source-search/` — web, scholar, Tavily, Perplexity Sonar
-- `perplexity-search/` — Perplexity Sonar family
-- `prediction-market-arbitrage/` — cross-platform arbitrage
-- `prediction-market-data/` — Polymarket + Kalshi data
-- `twitter-autopilot/` — X/Twitter read + authenticated write
-- `youtube-serp/` — YouTube search
+- `financial/` — market data, stock research, portfolios, prediction markets
+- `search-research/` — web, academic, Tavily, Perplexity, recent research
+- `social-media/` — Twitter/X and YouTube workflows
+- `ai-models/` — provider setup and LLM routing
+- `marketing/` — SEO and creator discovery
+- `creative/` — image and video generation
 
 Skills are consumed by any [agentskills.io](https://agentskills.io)-
 compatible harness (Claude Code, Claude, OpenCode, Cursor, Codex,
@@ -53,7 +51,7 @@ Every skill directory contains:
   Do not introduce `requests`, `httpx`, or other third-party libs —
   every skill must run with only `python3` and `curl` on the host.
 - **`references/`** — extra prose files linked from `SKILL.md` when a
-  workflow is too large to inline (e.g. `twitter-autopilot/references/`
+  workflow is too large to inline (e.g. `social-media/twitter-autopilot/references/`
   for OAuth-gated post/engage flows).
 
 When `SKILL.md` references script paths, it uses the literal token
@@ -99,9 +97,9 @@ All doc links use **`aisa.one/docs/...`** (never `docs.aisa.one` or
 - When an endpoint has narrower coverage than siblings (e.g.
   `/financial/earnings/press-releases`), document the gotcha inline
   in `SKILL.md` and, if there's a supported-tickers list, keep it in a
-  sibling `.md` file (see `marketpulse/earnings-press-releases-tickers.md`).
+  sibling `.md` file (see `financial/marketpulse/earnings-press-releases-tickers.md`).
 - Async task endpoints (video generation, OAuth) poll via a task-id GET —
-  follow the pattern in `media-gen/scripts/media_gen_client.py` rather
+  follow the pattern in `creative/media-gen/scripts/media_gen_client.py` rather
   than reinventing.
 - If adding a new harness that supports the agent-skills spec, update
   the canonical list in every skill's `metadata.aisa.harnesses`, its
@@ -112,15 +110,15 @@ All doc links use **`aisa.one/docs/...`** (never `docs.aisa.one` or
 
 ```bash
 export AISA_API_KEY="..."
-python3 <skill>/scripts/<client>.py <subcommand> [--flags]
+python3 <category>/<skill>/scripts/<client>.py <subcommand> [--flags]
 ```
 
 `last30days` is the exception — it's a bash-wrapped Python skill:
 
 ```bash
 export AISA_API_KEY="..."
-bash last30days/scripts/run-last30days.sh setup      # first-run
-bash last30days/scripts/run-last30days.sh "<topic>"
+bash search-research/last30days/scripts/run-last30days.sh setup      # first-run
+bash search-research/last30days/scripts/run-last30days.sh "<topic>"
 ```
 
 There is no test harness. Verify changes by running the client against
