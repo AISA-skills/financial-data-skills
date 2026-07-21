@@ -12,12 +12,11 @@ with a few house-level requirements on top.
 2. `SKILL.md` frontmatter must be **spec-compliant** (validate with
    [`skills-ref`](https://github.com/agentskills/agentskills/tree/main/skills-ref)
    before merging).
-3. **Every skill must explicitly declare which harnesses it works with**,
-   both in the `compatibility:` field and in a `## Compatibility` section
-   of the SKILL.md body (or README.md). No exceptions — this is the
-   value proposition of the agent-skills format.
-4. Include a `README.md` with the same compatibility block so humans
-   browsing the repo on GitHub see it immediately.
+3. Use the optional `compatibility:` field when a Skill has environment or
+   product constraints that users need to know before activation.
+4. A `README.md` and consistent body sections are recommended for humans
+   browsing the repository, but they are not required by the Agent Skills
+   specification and are not validity gates.
 
 ## Directory layout
 
@@ -27,7 +26,7 @@ with a few house-level requirements on top.
 ├── LICENSE           # category-local copy for skill-relative license links
 └── <skill-name>/
     ├── SKILL.md      # required — metadata + agent-facing instructions
-    ├── README.md     # required in this repo — human-facing overview
+    ├── README.md     # optional — human-facing overview
     ├── scripts/      # optional — runnable code
     ├── references/   # optional — long-form docs the agent loads on demand
     ├── assets/       # optional — static resources (templates, data, images)
@@ -51,19 +50,22 @@ Directory name rules (enforced by the spec):
 |-----------------|----------|-------|
 | `name`          | **Yes**  | Matches directory name. See rules above. |
 | `description`   | **Yes**  | 1–1024 chars. Describe **what the skill does and when to use it**. Include specific keywords that help an agent pick it. |
-| `license`       | **Yes in this repo** | `MIT` — this is the **distribution license** for the packaged skill (used when it ships via [clawhub.ai](https://clawhub.ai)). The **contribution license** for this source repo is Apache-2.0 (see [LICENSE](./LICENSE)). Both are intentional; see "Dual-license arrangement" below. |
-| `compatibility` | **Yes in this repo** | 1–500 chars. Must list the harnesses the skill works with. Spec treats this as optional; we require it. |
+| `license`       | No | Recommended when a Skill has a distinct distribution license. The field is optional in the specification. |
+| `compatibility` | No | Recommended for environment requirements or known product constraints. Maximum 500 chars. |
 | `metadata`      | Recommended | Vendor metadata — `homepage`, `emoji`, `requires`, `primaryEnv`, etc. Use reasonably unique keys. |
 | `allowed-tools` | Optional | Space-separated list. Experimental, support varies. |
 
-### Canonical frontmatter template
+### Example frontmatter
+
+Only `name` and `description` are required. Include optional fields only when
+their values are accurate and useful:
 
 ```yaml
 ---
 name: <directory-name>
 description: "<one paragraph: what + when. 1-1024 chars. Specific keywords for agent discovery.>"
 license: MIT
-compatibility: "Works with any agentskills-compatible harness — Claude Code, Claude, OpenCode, Cursor, Codex, Gemini CLI, OpenClaw, Hermes, Goose, and others. Requires <bins> and <env vars>."
+compatibility: "Requires <verified binaries, environment variables, operating systems, or client features>."
 metadata:
   homepage: https://aisa.one
   emoji: "<single emoji>"
@@ -71,7 +73,7 @@ metadata:
     bins: [<binary1>, <binary2>]
     env: [<ENV_VAR_1>]
   primaryEnv: <PRIMARY_ENV_VAR>
-  harnesses: [claude-code, claude, opencode, cursor, codex, gemini-cli, openclaw, hermes, goose]
+  harnesses: [<verified-harness-id>]
 ---
 ```
 
@@ -86,19 +88,22 @@ This repo has two licenses, serving two different purposes:
 
 The two are mutually compatible: Apache-2.0 is strictly more permissive-with-obligations than MIT, so the umbrella can host MIT-licensed distribution artifacts without friction. New skills should keep `license: MIT` in their frontmatter unless there's a deliberate reason to differ.
 
-### Why both `compatibility:` (top-level) and `metadata.harnesses`?
+### Compatibility metadata
 
 - **`compatibility:`** is the agentskills.io-spec field. Human-readable
   sentence. Harnesses that read the spec surface this to the user.
 - **`metadata.harnesses:`** is a machine-readable list some harnesses
   (OpenClaw, Hermes) use for install-time checks.
 
-Include both. The sentence in `compatibility:` should remain current as
-we add support for new harnesses.
+Use only claims that have actually been verified. Do not require every Skill
+to repeat a fixed harness roster: support can depend on how a client discovers
+and resolves packaged resources.
 
 ## `SKILL.md` body
 
-Follow this structure (matches the existing sibling skills in this repo):
+The specification imposes no fixed headings on the Markdown body. The
+following is an optional template for larger API-backed Skills; omit or rename
+sections that do not help the agent perform the task:
 
 ```markdown
 # <Skill Name> <emoji>
@@ -140,10 +145,11 @@ export AISA_API_KEY=sk-...
 python3 {baseDir}/scripts/<client>.py <subcommand> [--flags]
 ```
 
-Use the literal token `{baseDir}` in SKILL.md script paths — the harness
-substitutes it at load time. Do **not** use `${SKILL_ROOT}`, absolute
-paths, or `./scripts/...`; `{baseDir}` is the repo convention (see
-`CLAUDE.md` at the repo root).
+The portable Agent Skills convention is to reference resources relative to
+the Skill root, for example `scripts/client.py` or
+`references/REFERENCE.md`. A Harness-specific placeholder such as `{baseDir}`
+may be shown as an additional example only when that Harness is explicitly
+supported; do not assume all clients substitute it.
 
 ## Inputs and Outputs
 
@@ -185,17 +191,17 @@ context.
 
 ## Where API Reference information goes
 
-**SKILL.md gets the detailed per-endpoint list.** Agents need to know
-exactly which endpoints they can call; that's part of the skill's
-machine-readable contract.
+For API-backed Skills, put the endpoint information where it helps the agent
+use the Skill correctly. A dedicated `## API Reference` heading is optional;
+the information may be integrated into usage instructions or a referenced
+file.
 
 **README.md gets only a one-paragraph pointer to the catalog.** Humans
 landing on the folder on GitHub want orientation, not an endpoint table.
 Duplicating the list creates drift — when AIsa adds a new endpoint we'd
 have to update two places per skill.
 
-Every README in this repo uses the identical block below — copy it
-verbatim, don't customize:
+If a README is present, a short link to the API catalog is usually sufficient:
 
 ```markdown
 ## API Reference
@@ -206,10 +212,9 @@ complete catalog of endpoints this skill can call.
 
 ## `README.md` body
 
-The README is for humans landing on the skill's folder on GitHub. It
-should mirror the SKILL.md body but drop the `{baseDir}` substitution
-token (replace with concrete `scripts/...` paths) and any
-harness-specific language. Mandatory section:
+The README is optional and intended for humans landing on the Skill folder on
+GitHub. Avoid duplicating large instruction blocks that can drift from
+`SKILL.md`.
 
 ```markdown
 ## Compatibility
@@ -240,28 +245,43 @@ Common targets:
 
 ## Validation before submitting a PR
 
-1. `name` matches directory name
-2. `name` passes the regex: `^[a-z0-9]+(-[a-z0-9]+)*$`, length ≤ 64
-3. `description` ≥ 1 char and ≤ 1024 chars
-4. `license` present
-5. `compatibility` present and mentions specific harnesses
-6. README.md has a `## Compatibility` section
-7. If the skill uses an env var, `metadata.primaryEnv` points at it
-8. All doc links use `aisa.one/docs/...` (never `docs.aisa.one` or `aisa.mintlify.app`)
-9. `SKILL.md` has a detailed `## API Reference` section listing each endpoint the skill calls, with links to the per-endpoint docs
-10. `README.md` has the **identical one-paragraph `## API Reference` block** (copied verbatim from the SOP) — do not list specific endpoints in README
-11. Spec conformance via the reference validator (optional but recommended):
-    ```bash
-    skills-ref validate ./<skill-name>
-    ```
+Blocking checks are limited to objective, reproducible conditions:
+
+1. `name` matches the Skill directory and satisfies the specification.
+2. `description` is non-empty and no longer than 1024 characters.
+3. Frontmatter passes the pinned `skills-ref==0.1.1` validator.
+4. Local Markdown references resolve inside the repository.
+5. Referenced scripts and `{baseDir}` targets exist.
+6. Python, shell, and JavaScript entry points parse successfully.
+7. No plaintext credentials or repository symlinks are introduced.
+8. Every category export is byte-for-byte identical to its source directory.
+9. Run the repository quality gate with its locked dependencies:
+   ```bash
+   uv --no-config venv --python python3.11 .venv
+   uv --no-config pip sync --python .venv/bin/python --require-hashes \
+     --only-binary :all: .github/quality-gate-requirements.txt
+   .venv/bin/python .github/scripts/catalog_quality.py --changed-from origin/main
+   ```
+   This validates repository-wide structure, credentials, symlinks, and
+   category exports, while schema, link, reference, and syntax checks apply to
+   files changed from `origin/main`. Run with `--all` when deliberately cleaning
+   historical catalog issues.
+   If `.github/quality-gate-requirements.in` changes, regenerate and commit the
+   hashed lock using the exact command recorded at the top of
+   `.github/quality-gate-requirements.txt`.
+
+README files, fixed body headings, `license`, `compatibility`, canonical Docs
+URLs, and a consistent presentation style remain useful review guidance, but
+are not Agent Skills validity requirements and are not blocking checks.
+
+The gate has no historical issue baseline. Untouched legacy issues do not block
+unrelated contributions, while any changed Skill must pass the current checks.
+Skill removals are ordinary Git changes and must be called out in the PR for
+review; Git history remains the retirement record.
 
 ## Updating this SOP
 
-If you add a new harness that supports agent skills, update:
-
-- The canonical frontmatter template here
-- The `compatibility:` field in each skill's SKILL.md
-- `metadata.harnesses` in each skill's SKILL.md
-- The `## Compatibility` section in each README.md
-
-Keeping harness compatibility explicit and current is the point.
+When a new Harness integration is verified, update this guide and only the
+Skills whose actual compatibility claims, requirements, or vendor metadata
+change. Do not add a universal compatibility roster or fixed Markdown section
+to every Skill. Keep claims evidence-based and scoped to the affected package.
