@@ -19,8 +19,8 @@ self-contained skill:
 Skills are consumed by any [agentskills.io](https://agentskills.io)-
 compatible harness (Claude Code, Claude, OpenCode, Cursor, Codex,
 Gemini CLI, OpenClaw, Hermes, Goose, and others). This repo is *not*
-an application — there is no build system, dependency manifest, or
-test suite.
+an application, but it has a catalog quality gate under `.github/scripts/`
+that validates every source and exported Skill package.
 
 ## Authoring reference
 
@@ -35,30 +35,23 @@ conventions.
 
 Every skill directory contains:
 
-- **`SKILL.md`** — the agent-facing contract. YAML frontmatter with
-  `name`, `description`, `license`, `compatibility`, and a `metadata`
-  map that includes `metadata.aisa.{emoji, homepage, requires,
-  primaryEnv, harnesses}`. Body is prose the agent reads at runtime:
-  compatibility block, capabilities, quick start, usage examples,
-  per-endpoint API reference.
-- **`README.md`** — human-facing overview. Every skill has one.
-  Mandatory sections: `## Compatibility` (harness list) and
-  `## API Reference` (short pointer to `aisa.one/docs/api-reference`).
-  See `SKILL_AUTHORING.md` for the verbatim block.
-- **`scripts/*.py`, `scripts/*.sh`** — CLI entry points the agent
-  invokes. **Zero runtime dependencies**: Python stdlib only
-  (`urllib.request`, `argparse`, `json`, `sqlite3`, `email.utils`).
-  Do not introduce `requests`, `httpx`, or other third-party libs —
-  every skill must run with only `python3` and `curl` on the host.
+- **`SKILL.md`** — the required agent-facing contract. Frontmatter requires
+  `name` and `description`; `license`, `compatibility`, `metadata`, and
+  `allowed-tools` are optional specification fields. The Markdown body has no
+  mandatory heading template.
+- **`README.md`** — optional human-facing overview for GitHub visitors. Keep it
+  concise and avoid duplicating instructions that can drift from `SKILL.md`.
+- **`scripts/*.py`, `scripts/*.sh`** — optional executable helpers. Prefer
+  self-contained scripts, but third-party dependencies are allowed when the
+  Skill clearly documents how to install or invoke them.
 - **`references/`** — extra prose files linked from `SKILL.md` when a
   workflow is too large to inline (e.g. `social-media/twitter-autopilot/references/`
   for OAuth-gated post/engage flows).
 
-When `SKILL.md` references script paths, it uses the literal token
-`{baseDir}` — e.g. `python3 {baseDir}/scripts/market_client.py ...` or
-`bash {baseDir}/scripts/run-last30days.sh ...`. The harness substitutes
-it at load time. Do **not** use `${SKILL_ROOT}`, `./scripts/...`, or
-absolute paths.
+Use Skill-root-relative resource references such as `scripts/client.py` and
+`references/REFERENCE.md`, as recommended by the Agent Skills specification.
+A Harness-specific placeholder such as `{baseDir}` may be included for a
+verified integration, but do not assume every client substitutes it.
 
 ## API surface
 
@@ -86,11 +79,11 @@ All doc links use **`aisa.one/docs/...`** (never `docs.aisa.one` or
 
 ## Conventions to preserve when editing
 
-- Keep `SKILL.md` frontmatter spec-compliant. Required fields: `name`
-  (matches directory, lowercase+hyphens), `description`, `license`,
-  `compatibility`. See `SKILL_AUTHORING.md` for the full schema.
-- Keep the `metadata.aisa.{emoji, homepage, requires, primaryEnv,
-  harnesses}` shape intact — harnesses that read it rely on it.
+- Keep `SKILL.md` frontmatter spec-compliant. Required fields are `name`
+  (matches directory, lowercase+hyphens) and `description`. Other fields are
+  optional and should be added only when useful.
+- Preserve vendor metadata that existing consumers use, but do not require a
+  single metadata shape for every Skill.
 - Keep CLI subcommand surfaces stable (e.g.
   `market_client.py stock prices ...`); `SKILL.md` examples are the
   spec and must stay in sync with `scripts/*.py`.
@@ -101,10 +94,9 @@ All doc links use **`aisa.one/docs/...`** (never `docs.aisa.one` or
 - Async task endpoints (video generation, OAuth) poll via a task-id GET —
   follow the pattern in `creative/media-gen/scripts/media_gen_client.py` rather
   than reinventing.
-- If adding a new harness that supports the agent-skills spec, update
-  the canonical list in every skill's `metadata.aisa.harnesses`, its
-  `compatibility:` sentence, and the `## Compatibility` body section —
-  and update `SKILL_AUTHORING.md` so future skills inherit it.
+- When a Harness integration is actually verified, update only the Skills whose
+  compatibility claims or vendor metadata are affected. Do not add a universal
+  roster or a fixed body section to unrelated Skills.
 
 ## Running a skill locally
 
@@ -121,5 +113,18 @@ bash search-research/last30days/scripts/run-last30days.sh setup      # first-run
 bash search-research/last30days/scripts/run-last30days.sh "<topic>"
 ```
 
-There is no test harness. Verify changes by running the client against
-the live API with a real key.
+Run the catalog quality gate before committing any Skill change:
+
+```bash
+uv --no-config venv --python python3.11 .venv
+uv --no-config pip sync --python .venv/bin/python --require-hashes \
+  --only-binary :all: .github/quality-gate-requirements.txt
+.venv/bin/python .github/scripts/catalog_quality.py --changed-from origin/main
+```
+
+This validates repository-wide structure, credentials, symlinks, and category
+exports, then applies schema, link, reference, and syntax checks only to files
+changed from `origin/main`. Use `--all` when intentionally cleaning historical
+catalog issues. For behavior changes, also run the affected client against the
+live API with a real key. Skill removals remain normal Git changes and require
+explicit reviewer approval; there is no separate retirement database.
